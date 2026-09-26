@@ -39,10 +39,12 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, int
                 $"Customer with ID {request.CustomerId} was not found.");
         }
 
-        var order = new Order(
-            request.CustomerId,
-            request.OrderDate,
-            request.TotalAmount);
+        var order = new Order
+        {
+            CustomerId = request.CustomerId,
+            OrderDate = request.OrderDate,
+            TotalAmount = request.TotalAmount
+        };
 
         await _unitOfWork.Orders.AddAsync(
             order,

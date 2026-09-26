@@ -10,7 +10,8 @@ public class CustomerConfiguration
     public void Configure(
         EntityTypeBuilder<Customer> builder)
     {
-        builder.ToTable("Customers");
+        //builder.ToTable("Customers");
+        builder.ToTable(nameof(Customer));
 
         builder.HasKey(x => x.Id);
 

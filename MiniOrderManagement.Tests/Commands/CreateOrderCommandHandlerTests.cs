@@ -16,7 +16,10 @@ public class CreateOrderCommandHandlerTests
     {
         // Arrange
 
-        var customer = new Customer("Saurabh");
+        var customer = new Customer
+        {
+            Name = "Saurabh"
+        };
 
         var customers = new Mock<ICustomerRepository>();
         var orders = new Mock<IOrderRepository>();

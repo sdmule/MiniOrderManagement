@@ -10,7 +10,7 @@ public class CustomerProfileConfiguration
     public void Configure(
         EntityTypeBuilder<CustomerProfile> builder)
     {
-        builder.ToTable("CustomerProfiles");
+        builder.ToTable(nameof(CustomerProfile));
 
         builder.HasKey(x => x.Id);
 

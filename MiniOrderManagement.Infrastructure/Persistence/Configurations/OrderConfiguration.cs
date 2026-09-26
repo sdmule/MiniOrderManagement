@@ -10,7 +10,7 @@ public class OrderConfiguration
     public void Configure(
         EntityTypeBuilder<Order> builder)
     {
-        builder.ToTable("Orders");
+        builder.ToTable(nameof(Order));
 
         builder.HasKey(x => x.Id);
 

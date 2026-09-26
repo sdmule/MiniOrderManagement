@@ -27,13 +27,18 @@ public class CreateCustomerCommandHandler
             "Creating customer with name {CustomerName}",
             request.Name);
 
-        var customer = new Customer(request.Name);
+        var customer = new Customer
+        {
+            Name = request.Name
+        };
 
-        var profile = new CustomerProfile(
-            request.Address,
-            request.PhoneNumber);
+        var profile = new CustomerProfile
+        {
+            Address = request.Address,
+            PhoneNumber = request.PhoneNumber
+        };
 
-        customer.AddProfile(profile);
+        customer.Profile = profile;
 
         await _unitOfWork.Customers.AddAsync(
             customer,
