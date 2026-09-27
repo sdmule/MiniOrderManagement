@@ -2,7 +2,10 @@ using MediatR;
 using MiniOrderManagement.API.ExceptionHandling;
 using MiniOrderManagement.Application;
 using MiniOrderManagement.Application.Behaviors;
+using MiniOrderManagement.Application.Interfaces;
 using MiniOrderManagement.Infrastructure;
+using MiniOrderManagement.Infrastructure.Repositories;
+using MiniOrderManagement.Infrastructure.UnitOfWork;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +19,8 @@ builder.Services.AddApplication();
 builder.Services.AddTransient(
     typeof(IPipelineBehavior<,>),
     typeof(ValidationBehavior<,>));
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddInfrastructure(
     builder.Configuration);

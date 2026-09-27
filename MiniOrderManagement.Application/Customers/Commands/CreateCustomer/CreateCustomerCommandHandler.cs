@@ -40,8 +40,14 @@ public class CreateCustomerCommandHandler
 
         customer.Profile = profile;
 
-        await _unitOfWork.Customers.AddAsync(
+        var customerRepository =
+            _unitOfWork.Repository<Customer>();
+
+        await customerRepository.AddAsync(
             customer,
+            cancellationToken);
+
+        await _unitOfWork.SaveChangesAsync(
             cancellationToken);
 
         await _unitOfWork.SaveChangesAsync(

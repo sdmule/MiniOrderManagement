@@ -4,9 +4,9 @@ using Microsoft.Extensions.DependencyInjection;
 using MiniOrderManagement.Application.Interfaces;
 using MiniOrderManagement.Infrastructure.Persistence;
 using MiniOrderManagement.Infrastructure.Repositories;
-using MiniOrderManagement.Infrastructure.Persistence.UnitOfWork;
+using MiniOrderManagement.Infrastructure.UnitOfWork;
 
-namespace MiniOrderManagement.Infrastructure;
+namespace MiniOrderManagement.Infrastructure.UnitOfWork;
 
 public static class DependencyInjection
 {
@@ -19,9 +19,9 @@ public static class DependencyInjection
                 configuration.GetConnectionString(
                     "DefaultConnection")));
 
-        services.AddScoped<ICustomerRepository, CustomerRepository>();
-
-        services.AddScoped<IOrderRepository, OrderRepository>();
+        services.AddScoped(
+            typeof(IRepository<>),
+            typeof(Repository<>));
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 

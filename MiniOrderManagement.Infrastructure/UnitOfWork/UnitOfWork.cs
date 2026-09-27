@@ -2,24 +2,31 @@
 using MiniOrderManagement.Infrastructure.Persistence;
 using MiniOrderManagement.Infrastructure.Repositories;
 
-namespace MiniOrderManagement.Infrastructure.Persistence.UnitOfWork;
+namespace MiniOrderManagement.Infrastructure.UnitOfWork;
 
 public class UnitOfWork : IUnitOfWork
 {
     private readonly AppDbContext _context;
 
-    public ICustomerRepository Customers { get; }
+    private readonly Dictionary<Type, object> _repositories = new();
 
-    public IOrderRepository Orders { get; }
-
-    public UnitOfWork(
-        AppDbContext context,
-        ICustomerRepository customers,
-        IOrderRepository orders)
+    public UnitOfWork(AppDbContext context)
     {
         _context = context;
-        Customers = customers;
-        Orders = orders;
+    }
+
+    public IRepository<T> Repository<T>()
+        where T : class
+    {
+        var type = typeof(T);
+
+        if (!_repositories.TryGetValue(type, out var repository))
+        {
+            repository = new Repository<T>(_context);
+            _repositories[type] = repository;
+        }
+
+        return (IRepository<T>)repository;
     }
 
     public async Task<int> SaveChangesAsync(

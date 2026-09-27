@@ -2,9 +2,8 @@
 
 public interface IUnitOfWork
 {
-    ICustomerRepository Customers { get; }
-
-    IOrderRepository Orders { get; }
+    IRepository<T> Repository<T>()
+        where T : class;
 
     Task<int> SaveChangesAsync(
         CancellationToken cancellationToken);

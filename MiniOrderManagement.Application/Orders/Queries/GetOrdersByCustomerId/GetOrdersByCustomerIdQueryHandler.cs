@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using MiniOrderManagement.Application.DTOs;
 using MiniOrderManagement.Application.Interfaces;
+using MiniOrderManagement.Domain.Entities;
 
 namespace MiniOrderManagement.Application.Orders.Queries.GetOrdersByCustomerId;
 
@@ -21,9 +22,12 @@ public class GetOrdersByCustomerIdQueryHandler
         GetOrdersByCustomerIdQuery request,
         CancellationToken cancellationToken)
     {
+        var orderRepository =
+            _unitOfWork.Repository<Order>();
+
         var orders =
-            await _unitOfWork.Orders.GetByCustomerIdAsync(
-                request.CustomerId,
+            await orderRepository.FindAsync(
+                x => x.CustomerId == request.CustomerId,
                 cancellationToken);
 
         return orders

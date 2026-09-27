@@ -1,18 +1,15 @@
-﻿using Castle.Core.Resource;
+﻿using System.Linq.Expressions;
+using Moq;
 using MiniOrderManagement.Application.Customers.Queries.GetCustomerById;
-using MiniOrderManagement.Application.DTOs;
 using MiniOrderManagement.Application.Interfaces;
 using MiniOrderManagement.Domain.Entities;
-using Moq;
 
 namespace MiniOrderManagement.Tests.Queries;
 
 public class GetCustomerByIdQueryHandlerTests
 {
-    //This test verifies that:
-    //When we request a customer by ID,
-    //the GetCustomerByIdQueryHandler correctly retrieves the customer and
-    //maps the Customer +CustomerProfile + Orders into CustomerDto.
+    // Tests that the customer, profile and orders
+    // are correctly retrieved and mapped to CustomerDto.
     [Fact]
     public async Task GetCustomerById_Should_Return_Customer_With_Profile_And_Orders()
     {
@@ -26,7 +23,8 @@ public class GetCustomerByIdQueryHandlerTests
         var profile = new CustomerProfile
         {
             Address = "Bangalore",
-            PhoneNumber = "9876543210"
+            PhoneNumber = "9876543210",
+            CustomerId = 1
         };
 
         customer.Profile = profile;
@@ -48,41 +46,58 @@ public class GetCustomerByIdQueryHandlerTests
         customer.Orders.Add(order1);
         customer.Orders.Add(order2);
 
-        var customers = new Mock<ICustomerRepository>();
-        var unitOfWork = new Mock<IUnitOfWork>();
+        var customerRepository =
+            new Mock<IRepository<Customer>>();
 
-        customers
-            .Setup(x => x.GetWithDetailsAsync(
+        var unitOfWork =
+            new Mock<IUnitOfWork>();
+
+        customerRepository
+            .Setup(x => x.GetByIdAsync(
                 1,
-                It.IsAny<CancellationToken>()))
+                It.IsAny<CancellationToken>(),
+                It.IsAny<Expression<Func<Customer, object>>[]>()))
             .ReturnsAsync(customer);
 
         unitOfWork
-            .Setup(x => x.Customers)
-            .Returns(customers.Object);
+            .Setup(x => x.Repository<Customer>())
+            .Returns(customerRepository.Object);
 
-        var handler = new GetCustomerByIdQueryHandler(
-            unitOfWork.Object);
+        var handler =
+            new GetCustomerByIdQueryHandler(
+                unitOfWork.Object);
 
-        var query = new GetCustomerByIdQuery(1);
+        var query =
+            new GetCustomerByIdQuery(1);
 
         // Act
 
-        var result = await handler.Handle(
-            query,
-            CancellationToken.None);
+        var result =
+            await handler.Handle(
+                query,
+                CancellationToken.None);
 
         // Assert
 
         Assert.NotNull(result);
 
-        Assert.Equal("Saurabh", result.Name);
+        Assert.Equal(
+            "Saurabh",
+            result.Name);
 
         Assert.NotNull(result.Profile);
-        Assert.Equal("Bangalore", result.Profile.Address);
-        Assert.Equal("9876543210", result.Profile.PhoneNumber);
 
-        Assert.Equal(2, result.Orders.Count());
+        Assert.Equal(
+            "Bangalore",
+            result.Profile.Address);
+
+        Assert.Equal(
+            "9876543210",
+            result.Profile.PhoneNumber);
+
+        Assert.Equal(
+            2,
+            result.Orders.Count());
 
         Assert.Contains(
             result.Orders,
@@ -92,51 +107,62 @@ public class GetCustomerByIdQueryHandlerTests
             result.Orders,
             order => order.TotalAmount == 1000);
 
-        customers.Verify(
-            x => x.GetWithDetailsAsync(
+        customerRepository.Verify(
+            x => x.GetByIdAsync(
                 1,
-                It.IsAny<CancellationToken>()),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<Expression<Func<Customer, object>>[]>()),
             Times.Once);
     }
 
-    //Query "not found" test
+
+    // Tests that null is returned when
+    // the requested customer does not exist.
     [Fact]
     public async Task GetCustomerById_Should_Return_Null_When_CustomerDoesNotExist()
     {
         // Arrange
 
-        var customers = new Mock<ICustomerRepository>();
-        var unitOfWork = new Mock<IUnitOfWork>();
+        var customerRepository =
+            new Mock<IRepository<Customer>>();
 
-        customers
-            .Setup(x => x.GetWithDetailsAsync(
+        var unitOfWork =
+            new Mock<IUnitOfWork>();
+
+        customerRepository
+            .Setup(x => x.GetByIdAsync(
                 9999,
-                It.IsAny<CancellationToken>()))
+                It.IsAny<CancellationToken>(),
+                It.IsAny<Expression<Func<Customer, object>>[]>()))
             .ReturnsAsync((Customer?)null);
 
         unitOfWork
-            .Setup(x => x.Customers)
-            .Returns(customers.Object);
+            .Setup(x => x.Repository<Customer>())
+            .Returns(customerRepository.Object);
 
-        var handler = new GetCustomerByIdQueryHandler(
-            unitOfWork.Object);
+        var handler =
+            new GetCustomerByIdQueryHandler(
+                unitOfWork.Object);
 
-        var query = new GetCustomerByIdQuery(9999);
+        var query =
+            new GetCustomerByIdQuery(9999);
 
         // Act
 
-        var result = await handler.Handle(
-            query,
-            CancellationToken.None);
+        var result =
+            await handler.Handle(
+                query,
+                CancellationToken.None);
 
         // Assert
 
         Assert.Null(result);
 
-        customers.Verify(
-            x => x.GetWithDetailsAsync(
+        customerRepository.Verify(
+            x => x.GetByIdAsync(
                 9999,
-                It.IsAny<CancellationToken>()),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<Expression<Func<Customer, object>>[]>()),
             Times.Once);
     }
 }

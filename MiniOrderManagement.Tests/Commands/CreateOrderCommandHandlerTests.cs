@@ -5,6 +5,7 @@ using MiniOrderManagement.Application.Customers.Commands.CreateCustomer;
 using MiniOrderManagement.Application.Interfaces;
 using MiniOrderManagement.Application.Orders.Commands.CreateOrder;
 using MiniOrderManagement.Domain.Entities;
+using Xunit;
 
 namespace MiniOrderManagement.Tests.Commands;
 
@@ -21,23 +22,30 @@ public class CreateOrderCommandHandlerTests
             Name = "Saurabh"
         };
 
-        var customers = new Mock<ICustomerRepository>();
-        var orders = new Mock<IOrderRepository>();
-        var unitOfWork = new Mock<IUnitOfWork>();
-        var logger = new Mock<ILogger<CreateOrderCommandHandler>>();
+        var customerRepository =
+    new Mock<IRepository<Customer>>();
 
-        customers
+        var orders =
+            new Mock<IRepository<Order>>();
+
+        var unitOfWork =
+            new Mock<IUnitOfWork>();
+
+        var logger =
+            new Mock<ILogger<CreateOrderCommandHandler>>();
+
+        customerRepository
             .Setup(x => x.GetByIdAsync(
                 1,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(customer);
 
         unitOfWork
-            .Setup(x => x.Customers)
-            .Returns(customers.Object);
+            .Setup(x => x.Repository<Customer>())
+            .Returns(customerRepository.Object);
 
         unitOfWork
-            .Setup(x => x.Orders)
+            .Setup(x => x.Repository<Order>())
             .Returns(orders.Object);
 
         var handler = new CreateOrderCommandHandler(
@@ -95,8 +103,8 @@ public class CreateOrderCommandHandlerTests
     {
         // Arrange
 
-        var customers = new Mock<ICustomerRepository>();
-        var orders = new Mock<IOrderRepository>();
+        var customers = new Mock<IRepository<Customer>>();
+        var orders = new Mock<IRepository<Order>>();
         var unitOfWork = new Mock<IUnitOfWork>();
         var logger = new Mock<ILogger<CreateOrderCommandHandler>>();
 
@@ -107,11 +115,11 @@ public class CreateOrderCommandHandlerTests
             .ReturnsAsync((Customer?)null);
 
         unitOfWork
-            .Setup(x => x.Customers)
+            .Setup(x => x.Repository<Customer>())
             .Returns(customers.Object);
 
         unitOfWork
-            .Setup(x => x.Orders)
+            .Setup(x => x.Repository<Order>())
             .Returns(orders.Object);
 
         var handler = new CreateOrderCommandHandler(

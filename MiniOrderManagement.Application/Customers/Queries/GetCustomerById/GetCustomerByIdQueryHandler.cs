@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using MiniOrderManagement.Application.DTOs;
 using MiniOrderManagement.Application.Interfaces;
+using MiniOrderManagement.Domain.Entities;
 
 namespace MiniOrderManagement.Application.Customers.Queries.GetCustomerById;
 
@@ -9,7 +10,8 @@ public class GetCustomerByIdQueryHandler
 {
     private readonly IUnitOfWork _unitOfWork;
 
-    public GetCustomerByIdQueryHandler(IUnitOfWork unitOfWork)
+    public GetCustomerByIdQueryHandler(
+        IUnitOfWork unitOfWork)
     {
         _unitOfWork = unitOfWork;
     }
@@ -18,10 +20,15 @@ public class GetCustomerByIdQueryHandler
         GetCustomerByIdQuery request,
         CancellationToken cancellationToken)
     {
+        var customerRepository =
+            _unitOfWork.Repository<Customer>();
+
         var customer =
-            await _unitOfWork.Customers.GetWithDetailsAsync(
+            await customerRepository.GetByIdAsync(
                 request.CustomerId,
-                cancellationToken);
+                cancellationToken,
+                x => x.Profile!,
+                x => x.Orders);
 
         if (customer is null)
             return null;

@@ -5,7 +5,8 @@ using MiniOrderManagement.Domain.Entities;
 
 namespace MiniOrderManagement.Application.Orders.Commands.CreateOrder;
 
-public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, int>
+public class CreateOrderCommandHandler
+    : IRequestHandler<CreateOrderCommand, int>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<CreateOrderCommandHandler> _logger;
@@ -26,17 +27,20 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, int
             "Creating order for customer {CustomerId}",
             request.CustomerId);
 
-        var customer = await _unitOfWork.Customers
-            .GetByIdAsync(request.CustomerId, cancellationToken);
+        var customerRepository = _unitOfWork.Repository<Customer>();
+
+        var customer = await customerRepository.GetByIdAsync(
+            request.CustomerId,
+            cancellationToken);
 
         if (customer is null)
         {
             _logger.LogWarning(
-                "Customer {CustomerId} was not found while creating an order",
+                "Customer {CustomerId} not found",
                 request.CustomerId);
 
             throw new KeyNotFoundException(
-                $"Customer with ID {request.CustomerId} was not found.");
+                $"Customer with id {request.CustomerId} not found");
         }
 
         var order = new Order
@@ -46,16 +50,16 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, int
             TotalAmount = request.TotalAmount
         };
 
-        await _unitOfWork.Orders.AddAsync(
-            order,
-            cancellationToken);
+        var orderRepository = _unitOfWork.Repository<Order>();
+
+        await orderRepository.AddAsync(order, cancellationToken);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation(
-            "Order {OrderId} created successfully for customer {CustomerId}",
-            order.Id,
-            request.CustomerId);
+            "Order created for customer {CustomerId} with id {OrderId}",
+            request.CustomerId,
+            order.Id);
 
         return order.Id;
     }
