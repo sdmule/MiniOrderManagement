@@ -1,6 +1,8 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using MiniOrderManagement.Application.Orders.Commands.CreateOrder;
+using MiniOrderManagement.Application.Orders.Queries.GetAllOrders;
+using MiniOrderManagement.Application.Orders.Queries.GetOrderById;
 using MiniOrderManagement.Application.Orders.Queries.GetOrdersByCustomerId;
 
 namespace MiniOrderManagement.API.Controllers;
@@ -40,6 +42,37 @@ public class OrdersController : ControllerBase
             await _sender.Send(
                 new GetOrdersByCustomerIdQuery(customerId),
                 cancellationToken);
+
+        return Ok(orders);
+    }
+
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> GetOrderById(
+        int id,
+        CancellationToken cancellationToken)
+    {
+        var order =
+            await _sender.Send(
+                new GetOrderByIdQuery(id),
+                cancellationToken);
+
+        if (order is null)
+            return NotFound();
+
+        return Ok(order);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAllOrders(
+        CancellationToken cancellationToken)
+    {
+        var orders =
+            await _sender.Send(
+                new GetAllOrdersQuery(),
+                cancellationToken);
+
+        if (orders is null)
+            return NotFound();
 
         return Ok(orders);
     }

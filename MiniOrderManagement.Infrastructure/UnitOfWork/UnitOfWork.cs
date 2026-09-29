@@ -1,6 +1,5 @@
 ﻿using MiniOrderManagement.Application.Interfaces;
 using MiniOrderManagement.Infrastructure.Persistence;
-using MiniOrderManagement.Infrastructure.Repositories;
 
 namespace MiniOrderManagement.Infrastructure.UnitOfWork;
 

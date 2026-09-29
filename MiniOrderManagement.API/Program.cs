@@ -3,8 +3,7 @@ using MiniOrderManagement.API.ExceptionHandling;
 using MiniOrderManagement.Application;
 using MiniOrderManagement.Application.Behaviors;
 using MiniOrderManagement.Application.Interfaces;
-using MiniOrderManagement.Infrastructure;
-using MiniOrderManagement.Infrastructure.Repositories;
+using MiniOrderManagement.Infrastructure.Persistence;
 using MiniOrderManagement.Infrastructure.UnitOfWork;
 
 var builder = WebApplication.CreateBuilder(args);

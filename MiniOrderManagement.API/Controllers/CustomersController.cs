@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using MiniOrderManagement.Application.Customers.Commands.CreateCustomer;
+using MiniOrderManagement.Application.Customers.Queries.GetAllCustomers;
 using MiniOrderManagement.Application.Customers.Queries.GetCustomerById;
 
 namespace MiniOrderManagement.API.Controllers;
@@ -40,6 +41,21 @@ public class CustomersController : ControllerBase
         var result =
             await _sender.Send(
                 new GetCustomerByIdQuery(id),
+                cancellationToken);
+
+        if (result is null)
+            return NotFound();
+
+        return Ok(result);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAllCustomers(
+        CancellationToken cancellationToken)
+    {
+        var result =
+            await _sender.Send(
+                new GetAllCustomersQuery(),
                 cancellationToken);
 
         if (result is null)

@@ -17,4 +17,9 @@ public interface IRepository<T>
     Task AddAsync(
         T entity,
         CancellationToken cancellationToken);
+
+    // New: get all with optional include expressions
+    Task<List<T>> GetAllAsync(
+        CancellationToken cancellationToken,
+        params Expression<Func<T, object>>[] includes);
 }

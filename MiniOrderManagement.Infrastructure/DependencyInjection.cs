@@ -3,8 +3,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MiniOrderManagement.Application.Interfaces;
 using MiniOrderManagement.Infrastructure.Persistence;
-using MiniOrderManagement.Infrastructure.Repositories;
-using MiniOrderManagement.Infrastructure.UnitOfWork;
 
 namespace MiniOrderManagement.Infrastructure.UnitOfWork;
 
