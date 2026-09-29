@@ -10,6 +10,20 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
+// CORS configuration
+// Allows the React frontend running on http://localhost:5173
+// to make HTTP requests to this ASP.NET Core API.
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("ReactApp", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -18,6 +32,7 @@ builder.Services.AddApplication();
 builder.Services.AddTransient(
     typeof(IPipelineBehavior<,>),
     typeof(ValidationBehavior<,>));
+
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -42,6 +57,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Apply the CORS policy defined above.
+// This allows requests coming from the React application
+// at http://localhost:5173.
+app.UseCors("ReactApp");
 
 app.UseAuthorization();
 
